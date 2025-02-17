@@ -15,7 +15,7 @@ This script installs essential **DevOps tools** on an **Ubuntu server**.
 
 ### 1️⃣ **Download and Run the Script**
 ```sh
-wget https://yourserver.com/devops_setup.sh
+wget https://raw.githubusercontent.com/OcheOps/The-Ultimate-DevOps-starter-pack/main/devops_setup.sh
 chmod +x devops_setup.sh
 ./devops_setup.sh
 
