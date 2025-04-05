@@ -1,0 +1,109 @@
+---
+- name: DevOps Environment Setup
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Update and upgrade APT packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install required dependencies
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - unzip
+          - ufw
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add user to Docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Enable and start Nginx
+      systemd:
+        name: nginx
+        enabled: yes
+        state: started
+
+    - name: Allow UFW OpenSSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Allow UFW Nginx Full
+      ufw:
+        rule: allow
+        name: "Nginx Full"
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Install Certbot
+      apt:
+        name:
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    - name: Install additional DevOps tools
+      apt:
+        name:
+          - jq
+          - htop
+          - net-tools
+          - tree
+        state: present
+
+    - name: Show Docker version
+      command: docker --version
+      register: docker_version
+    - debug:
+        var: docker_version.stdout
+
+    - name: Show Docker Compose version
+      command: docker-compose --version
+      register: compose_version
+    - debug:
+        var: compose_version.stdout
+
+    - name: Show Nginx version
+      command: nginx -v
+      register: nginx_version
+      ignore_errors: yes
+    - debug:
+        var: nginx_version.stderr
+
+    - name: Show Certbot version
+      command: certbot --version
+      register: certbot_version
+    - debug:
+        var: certbot_version.stdout

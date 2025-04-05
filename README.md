@@ -19,3 +19,7 @@ wget https://raw.githubusercontent.com/OcheOps/The-Ultimate-DevOps-starter-pack/
 chmod +x devops_setup.sh
 ./devops_setup.sh
 
+Ansible  command 
+
+ansible-playbook -i hosts.ini devops-setup.yml
+
