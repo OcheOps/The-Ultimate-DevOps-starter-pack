@@ -1,0 +1,37 @@
+---
+- name: Create ansible-admin user and add SSH key
+  hosts: all
+  become: true
+
+  vars:
+    ansible_user_name: ansible-admin
+    ansible_user_ssh_key: "{{ lookup('file', '~/.ssh/ansible-admin-key.pub') }}"
+
+  tasks:
+    - name: Create the ansible-admin user
+      user:
+        name: "{{ ansible_user_name }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+        state: present
+
+    - name: Create .ssh directory for the user
+      file:
+        path: "/home/{{ ansible_user_name }}/.ssh"
+        state: directory
+        mode: '0700'
+        owner: "{{ ansible_user_name }}"
+        group: "{{ ansible_user_name }}"
+
+    - name: Add authorized SSH key for the user
+      authorized_key:
+        user: "{{ ansible_user_name }}"
+        key: "{{ ansible_user_ssh_key }}"
+
+    - name: Set permissions on authorized_keys
+      file:
+        path: "/home/{{ ansible_user_name }}/.ssh/authorized_keys"
+        mode: '0600'
+        owner: "{{ ansible_user_name }}"
+        group: "{{ ansible_user_name }}"
